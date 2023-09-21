@@ -28,22 +28,22 @@ struct Ping: MediatrRequest {
 	let message: String
 }
 
-struct Pong: {
+struct Pong {
 	let message: String
 }
 
 struct PingHandler: MediatrRequestHandler {
-	func handle(request: Ping) async throws -> Ping.Response {
-		return Ping.Response(message: "Pong")
+	func handle(request: Ping) async throws -> Pong {
+		return Pong(message: "Pong")
 	}
 }
 
 @mediatrMacro()
 @requestHandlers([
 	HandlerMapping(
-		requestType: PingRequest.self, 
-		responseType: PingResponse.self, 
-		handlerType: PingRequestHandler.self, 
+		requestType: Ping.self, 
+		responseType: Ping.self, 
+		handlerType: PingHandler.self, 
 		lifetime: .singleton
 	)
 ])
@@ -59,16 +59,16 @@ Task { @MainActor in
 // Faking the mediatr / handler
 
 struct FakePingHandler: MediatrRequestHandler {
-	func handle(request: Ping) async throws -> Ping.Response {
+	func handle(request: Ping) async throws -> Pong {
 		throw NSError(domain: "my-error-domain", code: 42)
 	}
 }
 
 @requestHandlers([
 	HandlerMapping(
-		requestType: PingRequest.self, 
-		responseType: PingResponse.self, 
-		handlerType: FakePingRequestHandler.self, 
+		requestType: Ping.self, 
+		responseType: Pong.self, 
+		handlerType: FakePingHandler.self, 
 		lifetime: .singleton,
 		modifier: .override
 	)
