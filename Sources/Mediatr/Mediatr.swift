@@ -18,7 +18,6 @@ public protocol MediatrRequestHandler {
 }
 
 public protocol Mediatr {
-	init(handlers: [HandlerRegistration])
 	var handlers: [HandlerRegistration] { get set }
 	func register<T: MediatrRequestHandler>(handlerType: T.Type, lifetime: Lifetime)
 }
