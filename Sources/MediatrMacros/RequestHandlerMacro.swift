@@ -160,6 +160,12 @@ public struct RequestHandlersMacro: MemberMacro {
 		return [
 			DeclSyntax(
 				InitializerDeclSyntax(
+					modifiers: DeclModifierListSyntax(
+						arrayLiteral: DeclModifierSyntax(
+							name: .stringSegment("public ")
+						),
+						DeclModifierSyntax(name: .stringSegment("required "))
+					),
 					signature: FunctionSignatureSyntax(
 						parameterClause: FunctionParameterClauseSyntax(
 							parameters: FunctionParameterListSyntax(

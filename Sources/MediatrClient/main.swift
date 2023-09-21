@@ -52,7 +52,7 @@ public final class FakeEditUserHandler: MediatrRequestHandler {
 
 class FakeMediar: MyMediatr {
 
-	override init(handlers: [HandlerRegistration] = []) {
+	required init(handlers: [HandlerRegistration] = []) {
 		super.init(handlers: [])
 		register(handlerType: FakeEditUserHandler.self, lifetime: .singleton)
 	}

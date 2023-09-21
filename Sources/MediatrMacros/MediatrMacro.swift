@@ -21,6 +21,11 @@ public struct MediatrMacro: MemberMacro {
 
 	private static func getRegisterSyntax() -> FunctionDeclSyntax {
 		return FunctionDeclSyntax(
+			modifiers: DeclModifierListSyntax(
+				arrayLiteral: DeclModifierSyntax(
+					name: .stringSegment("public ")
+				)
+			),
 			name: .stringSegment("register"),
 			genericParameterClause: GenericParameterClauseSyntax(
 			 stringLiteral: "<T: MediatrRequestHandler>"
