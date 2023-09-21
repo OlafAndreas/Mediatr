@@ -14,31 +14,7 @@ let testMacros: [String: Macro.Type] = [
 final class MediatrTests: XCTestCase {
     func testMacro() throws {
         #if canImport(MediatrMacros)
-        assertMacroExpansion(
-            """
-            #stringify(a + b)
-            """,
-            expandedSource: """
-            (a + b, "a + b")
-            """,
-            macros: testMacros
-        )
-        #else
-        throw XCTSkip("macros are only supported when running tests for the host platform")
-        #endif
-    }
-
-    func testMacroWithStringLiteral() throws {
-        #if canImport(MediatrMacros)
-        assertMacroExpansion(
-            #"""
-            #stringify("Hello, \(name)")
-            """#,
-            expandedSource: #"""
-            ("Hello, \(name)", #""Hello, \(name)""#)
-            """#,
-            macros: testMacros
-        )
+        // TODO: Add tests
         #else
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
