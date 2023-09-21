@@ -3,7 +3,71 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-public struct MediatrMacro: ExtensionMacro {
+public struct MediatrMacro: MemberMacro {
+	
+	public static func expansion(of node: SwiftSyntax.AttributeSyntax, providingMembersOf declaration: some SwiftSyntax.DeclGroupSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> [SwiftSyntax.DeclSyntax] {
+		return [
+			DeclSyntax(
+				stringLiteral: "public var handlers: [HandlerRegistration] = []"
+			),
+			DeclSyntax(
+				stringLiteral: "public init(handlers: [HandlerRegistration] = []) { self.handlers = handlers }"
+			),
+			DeclSyntax(
+				getHandlerSyntax()
+			),
+			DeclSyntax(
+				getRegisterSyntax()
+			)
+		]
+	}
+
+	private static func getRegisterSyntax() -> FunctionDeclSyntax {
+		return FunctionDeclSyntax(
+			name: .stringSegment("register"),
+			genericParameterClause: GenericParameterClauseSyntax(
+			 stringLiteral: "<T: MediatrRequestHandler>"
+			),
+			signature: FunctionSignatureSyntax(
+			 parameterClause: FunctionParameterClauseSyntax(
+				 parameters: FunctionParameterListSyntax([
+					 FunctionParameterSyntax(
+						 stringLiteral: "handlerType: T.Type, lifetime: Lifetime"
+					 )
+				 ])
+			 )
+			),
+			body: CodeBlockSyntax(
+			 statements: CodeBlockItemListSyntax([
+				 CodeBlockItemSyntax(stringLiteral: registerBody)
+			 ])
+			)
+		)
+	}
+
+	private static func getHandlerSyntax() -> FunctionDeclSyntax {
+		return FunctionDeclSyntax(
+			name: .stringSegment("getHandler"),
+			genericParameterClause: GenericParameterClauseSyntax(
+				stringLiteral: "<T: MediatrRequestHandler>"
+			),
+			signature: FunctionSignatureSyntax(
+				parameterClause: FunctionParameterClauseSyntax(
+					parameters: FunctionParameterListSyntax([])
+				),
+				returnClause: ReturnClauseSyntax(
+					type: IdentifierTypeSyntax(
+						name: .stringSegment("T", trailingTrivia: .space)
+					)
+				)
+			),
+			body: CodeBlockSyntax(
+				statements: CodeBlockItemListSyntax([
+					CodeBlockItemSyntax(stringLiteral: getHandlerBody)
+				])
+			)
+		)
+	}
 
 	private static let registerBody = """
  let registration = HandlerRegistration(handlerType: handlerType, lifetime: lifetime)
@@ -38,79 +102,4 @@ public struct MediatrMacro: ExtensionMacro {
 			return newInstance as! T
 		}
 """
-
-	public static func expansion(
-		of node: SwiftSyntax.AttributeSyntax,
-		attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
-		providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
-		conformingTo protocols: [SwiftSyntax.TypeSyntax],
-		in context: some SwiftSyntaxMacros.MacroExpansionContext
-	) throws -> [SwiftSyntax.ExtensionDeclSyntax] {
-
-		return [
-			ExtensionDeclSyntax(
-				extendedType: type,
-				memberBlock: MemberBlockSyntax(
-					membersBuilder: {
-						MemberBlockItemListSyntax(
-							arrayLiteral:
-								getHandlerSyntax(),
-								getRegisterSyntax()
-						)
-					}
-				)
-			)
-		]
-	}
-
-	private static func getRegisterSyntax() -> MemberBlockItemSyntax {
-		return MemberBlockItemSyntax(
-			decl: FunctionDeclSyntax(
-			name: .stringSegment("register"),
-			genericParameterClause: GenericParameterClauseSyntax(
-			 stringLiteral: "<T: MediatrRequestHandler>"
-			),
-			signature: FunctionSignatureSyntax(
-			 parameterClause: FunctionParameterClauseSyntax(
-				 parameters: FunctionParameterListSyntax([
-					 FunctionParameterSyntax(
-						 stringLiteral: "handlerType: T.Type, lifetime: Lifetime"
-					 )
-				 ])
-			 )
-			),
-			body: CodeBlockSyntax(
-			 statements: CodeBlockItemListSyntax([
-				 CodeBlockItemSyntax(stringLiteral: registerBody)
-			 ])
-			)
-		)
-		)
-	}
-
-	private static func getHandlerSyntax() -> MemberBlockItemSyntax {
-		return MemberBlockItemSyntax(
-			decl: FunctionDeclSyntax(
-			 name: .stringSegment("getHandler"),
-			 genericParameterClause: GenericParameterClauseSyntax(
-				 stringLiteral: "<T: MediatrRequestHandler>"
-			 ),
-			 signature: FunctionSignatureSyntax(
-				 parameterClause: FunctionParameterClauseSyntax(
-					 parameters: FunctionParameterListSyntax([])
-				 ),
-				 returnClause: ReturnClauseSyntax(
-					 type: IdentifierTypeSyntax(
-						 name: .stringSegment("T", trailingTrivia: .space)
-					 )
-				 )
-			 ),
-			 body: CodeBlockSyntax(
-				 statements: CodeBlockItemListSyntax([
-					 CodeBlockItemSyntax(stringLiteral: getHandlerBody)
-				 ])
-			 )
-		 )
-	 )
-	}
 }

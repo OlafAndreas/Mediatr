@@ -1,6 +1,13 @@
 // The Swift Programming Language
 // https://docs.swift.org/swift-book
 
+import Foundation
+
+public enum BehaviorType: String {
+	case none = ""
+	case override = "override"
+}
+
 public protocol MediatrRequest {
 	associatedtype Response
 }
@@ -31,8 +38,8 @@ public struct HandlerRegistration {
 	}
 }
 
-@attached(extension, names: named(send(request:)))
-public macro requestHandler<Request, Response, Handler>(_ requestType: Request.Type, _ responseType: Response.Type, _ handlerType: Handler.Type) = #externalMacro(module: "MediatrMacros", type: "RequestHandlerMacro")
-
-@attached(extension, names: named(getHandler()), named(register(handlerType:lifetime:)))
+@attached(member, names: named(init(handlers:)), named(handlers), named(getHandler()), named(register(handlerType:lifetime:)))
 public macro mediatrMacro() = #externalMacro(module: "MediatrMacros", type: "MediatrMacro")
+
+@attached(member, names: named(send(request:)))
+public macro requestHandler<Request, Response, Handler>(_ requestType: Request.Type, _ responseType: Response.Type, _ handlerType: Handler.Type, _ behaviorType: BehaviorType = .none) = #externalMacro(module: "MediatrMacros", type: "RequestHandlerMacro")

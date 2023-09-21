@@ -27,8 +27,8 @@ public struct EditUserResponse {
 	let success: Bool
 }
 
-public final class EditUserHandler: MediatrRequestHandler {
-	public init() {}
+public class EditUserHandler: MediatrRequestHandler {
+	public required init() {}
 
 	public func handle(request: EditUser) async throws -> EditUser.Response {
 		return EditUser.Response(success: true)
@@ -38,8 +38,19 @@ public final class EditUserHandler: MediatrRequestHandler {
 @mediatrMacro()
 @requestHandler(Ping.self, Pong.self, PingHandler.self)
 @requestHandler(EditUser.self, EditUserResponse.self, EditUserHandler.self)
-public class MyMediatr: Mediatr {
-	public var handlers: [HandlerRegistration] = []
+public class MyMediatr: Mediatr {}
+
+public final class FakeEditUserHandler: MediatrRequestHandler {
+	public init() {}
+
+	public func handle(request: EditUser) async throws -> EditUser.Response {
+		return .init(success: true)
+	}
+}
+
+@requestHandler(EditUser.self, EditUserResponse.self, FakeEditUserHandler.self, BehaviorType.override)
+class FakeMediar: MyMediatr {
+
 }
 
 let mediatr = MyMediatr()
