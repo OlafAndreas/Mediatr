@@ -127,6 +127,10 @@ public struct RequestHandlersMacro: MemberMacro {
 		in context: some SwiftSyntaxMacros.MacroExpansionContext
 	) throws -> [SwiftSyntax.DeclSyntax] {
 
+		let isRootImplementation: Bool = declaration.as(ClassDeclSyntax.self)!.inheritanceClause!.inheritedTypes.contains(where: {
+			$0.as(InheritedTypeSyntax.self)!.type.as(IdentifierTypeSyntax.self)!.name.text == "Mediatr"
+		})
+
 		let elements = node.arguments!
 			.as(LabeledExprListSyntax.self)!.first!
 			.as(LabeledExprSyntax.self)!.expression
@@ -137,6 +141,11 @@ public struct RequestHandlersMacro: MemberMacro {
 				stringLiteral: "self.handlers = handlers"
 			)
 		]
+
+		if !isRootImplementation {
+			registerDeclarations.insert(CodeBlockItemSyntax(stringLiteral: "super.init()"), at: 0)
+		}
+
 		var sendDeclarations: [DeclSyntax] = []
 
 		elements.forEach { element in
@@ -157,19 +166,28 @@ public struct RequestHandlersMacro: MemberMacro {
 			sendDeclarations.append(sendDeclaration)
 		}
 
+		var modifiers = DeclModifierListSyntax(
+			arrayLiteral: DeclModifierSyntax(
+				name: .stringSegment("public ")
+			)
+		)
+
+		if !isRootImplementation {
+			modifiers.append(
+				DeclModifierSyntax(
+					name: .stringSegment("override ")
+				)
+			)
+		}
+
 		return [
 			DeclSyntax(
 				InitializerDeclSyntax(
-					modifiers: DeclModifierListSyntax(
-						arrayLiteral: DeclModifierSyntax(
-							name: .stringSegment("public ")
-						),
-						DeclModifierSyntax(name: .stringSegment("required "))
-					),
+					modifiers: modifiers,
 					signature: FunctionSignatureSyntax(
 						parameterClause: FunctionParameterClauseSyntax(
-							parameters: FunctionParameterListSyntax(
-								arrayLiteral: FunctionParameterSyntax(
+							parameters: FunctionParameterListSyntax(arrayLiteral:
+								FunctionParameterSyntax(
 									stringLiteral: "handlers: [HandlerRegistration] = []"
 								)
 							)

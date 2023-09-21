@@ -50,17 +50,8 @@ public final class FakeEditUserHandler: MediatrRequestHandler {
 	}
 }
 
+@requestHandlers([HandlerMapping(requestType: EditUser.self, responseType: EditUserResponse.self, handlerType: FakeEditUserHandler.self, modifier: .override)])
 class FakeMediar: MyMediatr {
-
-	required init(handlers: [HandlerRegistration] = []) {
-		super.init(handlers: [])
-		register(handlerType: FakeEditUserHandler.self, lifetime: .singleton)
-	}
-
-	override func send(request: EditUser) async throws -> EditUserResponse {
-		let handler: FakeEditUserHandler = getHandler()
-		return try await handler.handle(request: request)
-	}
 }
 
 let mediatr = MyMediatr()
