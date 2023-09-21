@@ -3,8 +3,8 @@
 
 import Foundation
 
-public enum BehaviorType: String {
-	case none = ""
+public enum Modifier: String {
+	case `internal` = "internal"
 	case override = "override"
 }
 
@@ -38,8 +38,30 @@ public struct HandlerRegistration {
 	}
 }
 
+public struct HandlerMapping {
+	public let requestType: any MediatrRequest.Type
+	public let responseType: Any.Type
+	public let handlerType: any MediatrRequestHandler.Type
+	public let lifetime: Lifetime
+	public let modifier: Modifier
+
+	public init(
+		requestType: any MediatrRequest.Type,
+		responseType: Any.Type,
+		handlerType: any MediatrRequestHandler.Type,
+		lifetime: Lifetime = .transient,
+		modifier: Modifier = .internal
+	) {
+		self.requestType = requestType
+		self.responseType = responseType
+		self.handlerType = handlerType
+		self.lifetime = lifetime
+		self.modifier = modifier
+	}
+}
+
+@attached(member, names: named(init(handlers:)), named(send(request:)))
+public macro requestHandlers(_ mapping: [HandlerMapping]) = #externalMacro(module: "MediatrMacros", type: "RequestHandlersMacro")
+
 @attached(member, names: named(init(handlers:)), named(handlers), named(getHandler()), named(register(handlerType:lifetime:)))
 public macro mediatrMacro() = #externalMacro(module: "MediatrMacros", type: "MediatrMacro")
-
-@attached(member, names: named(send(request:)))
-public macro requestHandler<Request, Response, Handler>(_ requestType: Request.Type, _ responseType: Response.Type, _ handlerType: Handler.Type, _ behaviorType: BehaviorType = .none) = #externalMacro(module: "MediatrMacros", type: "RequestHandlerMacro")

@@ -7,7 +7,7 @@ import XCTest
 import MediatrMacros
 
 let testMacros: [String: Macro.Type] = [
-    "requestHandler": RequestHandlerMacro.self,
+    "requestHandler": RequestHandlersMacro.self,
 ]
 #endif
 

@@ -4,14 +4,11 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 public struct MediatrMacro: MemberMacro {
-	
+
 	public static func expansion(of node: SwiftSyntax.AttributeSyntax, providingMembersOf declaration: some SwiftSyntax.DeclGroupSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> [SwiftSyntax.DeclSyntax] {
 		return [
 			DeclSyntax(
 				stringLiteral: "public var handlers: [HandlerRegistration] = []"
-			),
-			DeclSyntax(
-				stringLiteral: "public init(handlers: [HandlerRegistration] = []) { self.handlers = handlers }"
 			),
 			DeclSyntax(
 				getHandlerSyntax()

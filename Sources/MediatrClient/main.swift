@@ -36,8 +36,10 @@ public class EditUserHandler: MediatrRequestHandler {
 }
 
 @mediatrMacro()
-@requestHandler(Ping.self, Pong.self, PingHandler.self)
-@requestHandler(EditUser.self, EditUserResponse.self, EditUserHandler.self)
+@requestHandlers([
+	HandlerMapping(requestType: Ping.self, responseType: Pong.self, handlerType: PingHandler.self, lifetime: .singleton),
+	HandlerMapping(requestType: EditUser.self, responseType: EditUserResponse.self, handlerType: EditUserHandler.self, lifetime: .transient)
+])
 public class MyMediatr: Mediatr {}
 
 public final class FakeEditUserHandler: MediatrRequestHandler {
@@ -48,9 +50,17 @@ public final class FakeEditUserHandler: MediatrRequestHandler {
 	}
 }
 
-@requestHandler(EditUser.self, EditUserResponse.self, FakeEditUserHandler.self, BehaviorType.override)
 class FakeMediar: MyMediatr {
 
+	override init(handlers: [HandlerRegistration] = []) {
+		super.init(handlers: [])
+		register(handlerType: FakeEditUserHandler.self, lifetime: .singleton)
+	}
+
+	override func send(request: EditUser) async throws -> EditUserResponse {
+		let handler: FakeEditUserHandler = getHandler()
+		return try await handler.handle(request: request)
+	}
 }
 
 let mediatr = MyMediatr()
