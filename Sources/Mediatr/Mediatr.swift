@@ -19,6 +19,7 @@ public protocol MediatrRequestHandler {
 
 public protocol Mediatr {
 	var handlers: [HandlerRegistration] { get set }
+	func register<T: MediatrRequestHandler>(handlerType: T.Type, lifetime: Lifetime)
 }
 
 public enum Lifetime {
